@@ -96,7 +96,7 @@ A first simple control program is created to move the robot according to a speci
 
 - We first bringup our robot (rubot/rubot_mecanum.urdf) in a speciffic world on a desired POSE:
 ```shell
-ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=True x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
+ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
 ```
 ![](./Images/03_Control/06_bringup_sw.png)
 
@@ -132,24 +132,35 @@ ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=True x
 
 The same simple control program created in virtual environment to move the robot is used for the real robot.
 
-- We first bringup our real robot:
-    ```shell
-    ros2 launch my_robot_bringup my_robot_bringup_hw.launch.py
-    ```
-- Or bringup the LIMO robot:
-    ``` shell
-    ros2 launch limo_bringup limo_start.launch.py
-    ```
+- We first bringup our real robot. Remember that this is already done when you power on the robot.
 
     ![](./Images/03_Control/08_bringup.png)
 
-    >**Important!**: If you are using the RRL service from TheConstruct, the bringup is already done on boot! You have only to connect to the Real Robot.
 - We control the robot with the same node created for virtual environment:
     ``` shell
     ros2 launch my_robot_control my_robot_control.launch.xml vx:=0.0 vy:=0.2 w:=0.0 td:=10.0
     ```
+To properly control your real rUBot, we have a very usefull Lidar sensor to detect obstacles and avoid collisions.
 
-## **2. Driving self-control**
+A first activity is proposed to verify the Lidar readings.
+
+**Lab Activity: Lidar test**
+
+The objectives of this activity are:
+- Put your robot inside a real world
+- Launch the rubot_lidar_test.launch file and verify:
+  - the number of laser beams
+  - the angle for the first laser beam index
+  - the total laser beams angle range
+- Create a new **rubot_lidar_test_custom.launch** and **rubot_lidar_test_custom.py**, including:
+    - Definition regions: right, front-right, front, front-left, left
+    - Print the minimum distance and angle for each region
+
+Upload a pdf file with a picture including:
+- Gazebo and rviz screen where you can see the robot and the Lidar readings
+- terminal running the "rubot_lidar_test_custom.launch" with distances readings
+
+## **2. Driving self-control using Lidar sensor**
 
 We will use now the created world to test the autonomous navigation with obstacle avoidance performance. 
 
@@ -164,10 +175,9 @@ Let's verify first this behaviour in virtual environment
 
 We have to launch the "my_robot_selfcontrol.launch.xml" file in the "my_robot_control" package.
 ```shell
-ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=True x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
+ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
 ros2 launch my_robot_control my_robot_selfcontrol.launch.xml time_to_stop:=10.0
 ```
-
 >- Verify in rviz if you have to change the fixed frame to "odom" frame
 >- You can test the behaviour when tunning the parameters defined
 
@@ -182,38 +192,11 @@ Design the code using the Holonomic robot performances, and upload:
 
 **REAL robot**
 
-We have to launch the same "my_robot_selfcontrol.launch.xml" file designed for Virtual environment.
+We have to launch the same `my_robot_selfcontrol.launch.xml` file designed for Virtual environment.
 ```shell
 ros2 launch my_robot_control my_robot_selfcontrol.launch.xml time_to_stop:=10.0
 ```
->The robot is not working as expected because the number of laser beams is not 720 as in simulation!
-
-**Lab Activity: Lidar test**
-
-The objectives of this activity are:
-- Put your robot inside a real world
-- Launch the rubot_lidar_test.launch file and verify:
-  - the number of laser beams
-  - the angle for the first laser beam index
-  - the total laser beams angle range
-- Create a new **rubot_lidar_test_custom.launch** and **rubot_lidar_test_custom.py**, including a laser_factor variable as beams/deg.
-- Verify the Lidar is able to identify correctly the obstacles in each angle orientation!
-
-Upload a zip file including:
-- picture containing:
-  - rviz screen where you can see the lidar distances
-  - terminal running the "rubot_lidar_test_custom.launch" with distances readings
-- the rubot_lidar_test_custom.py
-
-**Lab Activity: rUBot self-control**
-
-The objective of this lab session is:
-- take into account the number of laser beams of your Lidar in the python code
-- verify the designed holonomic self-control node you have created for virtual environment in the previous activity.
-
-Upload the:
-- "my_robot_selfcontrol_holonomic.launch.xml" and "my_robot_selfcontrol_holonomic.py" files
-- Video of the execution in REAL environment
+>Verify if you have used the number of laser beams of your Lidar included in your rUBot!
 
 ## **3. Wall Follower**
 
@@ -228,7 +211,7 @@ The algorith is based on laser ranges test and depends on the LIDAR type:
 
 We have to launch the "my_robot_wallfollower.launch.xml" file in the "my_robot_control" package.
 ```shell
-ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=True x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
+ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
 ros2 launch my_robot_control my_robot_wallfollower.launch.xml time_to_stop:=50.0
 ```
 >- You can test the behaviour when tunning the parameters defined
@@ -250,21 +233,11 @@ ros2 launch my_robot_control my_robot_wallfollower.launch.xml time_to_stop:=50.0
 ```
 >The robot is not working as expected because the number of laser beams is not 720 as in simulation!
 
-**Lab Activity: rUBot wall-follower**
-
-The objective of this lab session is:
-- take into account the number of laser beams of your Lidar in the python code
-- verify the designed holonomic wall-follower node you have created for virtual environment in the previous activity.
-
-Upload the:
-- "my_robot_wallfollower_holonomic.launch.xml" and "my_robot_wallfollower_holonomic.py" files
-- Video of the execution in REAL environment
-
 ## **4. Go to POSE**
 
-We have created a Go2POSE strategy 
+We have created a Go2Pose node based on the Odometry information to reach a desired POSE in the environment. 
 
 ```shell
-ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=True x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
+ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml x0:=1.0 y0:=1.0 yaw0:=1.8 robot:=rubot/rubot_mecanum.urdf custom_world:=square3m_walls.world
 ros2 launch my_robot_control my_robot_go2pose.launch.xml 
 ```
